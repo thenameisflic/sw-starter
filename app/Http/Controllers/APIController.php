@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ComputeQueryStatistics;
 use App\Models\QueryLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -123,6 +124,10 @@ class APIController extends Controller
 
     public function statistics()
     {
+        if (!Cache::has('query_statistics')) {
+            dispatch_sync(new ComputeQueryStatistics);
+        }
+
         $statistics = Cache::get('query_statistics', [
             'top_queries' => [],
             'average_timing' => 0,
